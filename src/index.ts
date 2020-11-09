@@ -1,35 +1,24 @@
-import { Node } from "./quadtree";
-
-function initializeCanvas() {
-  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  const scale = window.devicePixelRatio;
-  canvas.width = window.innerWidth * scale;
-  canvas.height = window.innerHeight * scale;
-  const context = canvas.getContext("2d") as CanvasRenderingContext2D;
-  context.scale(scale, scale);
-  return {
-    canvas,
-    context,
-  };
-}
-
-function drawNode(context: CanvasRenderingContext2D, node: Node) {
-  context.strokeStyle = "#fff";
-  context.beginPath();
-  context.rect(node.box.x, node.box.y, node.box.width, node.box.height);
-  context.stroke();
-}
+import { Node, construct, nodes } from "./quadtree";
+import { Vector } from "./vector";
+import { clearCanvas, initializeCanvas, drawNode, drawPoints } from "./canvas";
 
 const { canvas, context } = initializeCanvas();
-context.fillStyle = "#000";
-context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+clearCanvas(context);
 
-const root = {
-  box: {
-    x: 0,
-    y: 0,
-    width: canvas.width,
-    height: canvas.height,
-  },
-};
-drawNode(context, root);
+const points = [];
+while (points.length < 1024) {
+  points.push(
+    new Vector(Math.random() * canvas.width, Math.random() * canvas.height)
+  );
+}
+
+const tree = construct(points, {
+  x: 0,
+  y: 0,
+  width: canvas.width,
+  height: canvas.height,
+});
+for (let node of nodes(tree)) {
+  drawNode(context, node);
+  drawPoints(context, node);
+}

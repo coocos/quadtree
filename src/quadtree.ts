@@ -15,12 +15,13 @@ export type Node = {
     bottomRight: Node;
   };
   box: BoundingBox;
-  points?: Array<Vector>;
+  points?: Vector[];
 };
 
-export function construct(points: Array<Vector>, box: BoundingBox): Node {
+export function construct(points: Vector[], box: BoundingBox): Node {
   const root = {
     box,
+    points: [],
   };
   for (let point of points) {
     insert(root, point);
@@ -52,6 +53,7 @@ export function split(node: Node) {
         y: node.box.y,
         ...dimensions,
       },
+      points: [],
     },
     topRight: {
       box: {
@@ -59,6 +61,7 @@ export function split(node: Node) {
         y: node.box.y,
         ...dimensions,
       },
+      points: [],
     },
     bottomLeft: {
       box: {
@@ -66,6 +69,7 @@ export function split(node: Node) {
         y: node.box.y + childHeight,
         ...dimensions,
       },
+      points: [],
     },
     bottomRight: {
       box: {
@@ -73,26 +77,59 @@ export function split(node: Node) {
         y: node.box.y + childHeight,
         ...dimensions,
       },
+      points: [],
     },
   };
 }
 
+// FIXME: You should really use *[Symbol.Iterator somehow]?
+export function nodes(node: Node) {
+  const queue = [node];
+  const nodes = [];
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    nodes.push(node);
+    if (node.children) {
+      for (let child of Object.values(node.children)) {
+        queue.push(child);
+      }
+    }
+  }
+  return nodes;
+}
+
+function isLeaf(node: Node) {
+  return node.children === undefined && node.points !== undefined;
+}
+
 export function insert(node: Node, point: Vector) {
-  if (node.points !== undefined) {
-    if (node.points.length < BUCKET_SIZE) {
-      node.points.push(point);
-    } else {
-      node.children = split(node);
-      for (let nodePoint of [...node.points, point]) {
-        for (let child of Object.values(node.children)) {
-          if (intersects(child, nodePoint)) {
-            insert(child, nodePoint);
+  if (isLeaf(node)) {
+    if (node.points !== undefined) {
+      if (node.points.length < BUCKET_SIZE) {
+        node.points.push(point);
+      } else {
+        node.children = split(node);
+        for (let nodePoint of [...node.points, point]) {
+          for (let child of Object.values(node.children)) {
+            if (intersects(child, nodePoint)) {
+              insert(child, nodePoint);
+            }
           }
         }
+        node.points = undefined;
       }
-      node.points = undefined;
+    } else {
+      console.error("Leaf should always have points");
     }
   } else {
-    node.points = [point];
+    if (node.children) {
+      for (let child of Object.values(node.children)) {
+        if (intersects(child, point)) {
+          insert(child, point);
+        }
+      }
+    } else {
+      console.error("Non-leaf should always have children");
+    }
   }
 }
