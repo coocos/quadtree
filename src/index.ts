@@ -1,5 +1,4 @@
 import { construct, nodes } from "./quadtree";
-import { Vector } from "./vector";
 import { clearCanvas, initializeCanvas, drawNode, drawPoints } from "./canvas";
 
 const { canvas, context } = initializeCanvas();
@@ -7,9 +6,10 @@ clearCanvas(context);
 
 const points = [];
 while (points.length < 1024) {
-  points.push(
-    new Vector(Math.random() * canvas.width, Math.random() * canvas.height)
-  );
+  points.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+  });
 }
 
 const tree = construct(points, {

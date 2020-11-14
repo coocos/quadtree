@@ -1,17 +1,18 @@
-import { Vector } from "./vector";
-
 const BUCKET_SIZE = 4;
 
-type BoundingBox = {
+type Point = {
   x: number;
   y: number;
+};
+
+type BoundingBox = Point & {
   width: number;
   height: number;
 };
 
 type Leaf = {
   box: BoundingBox;
-  points: Vector[];
+  points: Point[];
 };
 
 type Inner = {
@@ -26,7 +27,7 @@ type Inner = {
 
 type Node = Leaf | Inner;
 
-export function construct(points: Vector[], box: BoundingBox): Node {
+export function construct(points: Point[], box: BoundingBox): Node {
   let root: Node = {
     box,
     points: [],
@@ -37,7 +38,7 @@ export function construct(points: Vector[], box: BoundingBox): Node {
   return root;
 }
 
-function insert(node: Node, point: Vector): Node {
+function insert(node: Node, point: Point): Node {
   if (isLeaf(node)) {
     if (node.points.length < BUCKET_SIZE) {
       node.points.push(point);
@@ -68,7 +69,7 @@ function insert(node: Node, point: Vector): Node {
   }
 }
 
-function intersects(node: Node, point: Vector) {
+function intersects(node: Node, point: Point) {
   return (
     point.x <= node.box.x + node.box.width &&
     point.x >= node.box.x &&
