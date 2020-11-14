@@ -15,6 +15,9 @@ describe("Quadtree", () => {
       width: 1,
       height: 1,
     });
+    if ("children" in root) {
+      fail("Flat tree root node should be a leaf");
+    }
     expect(root.points).not.toEqual(undefined);
     expect(root.points).toEqual(points);
   });
@@ -32,8 +35,10 @@ describe("Quadtree", () => {
       width: 1,
       height: 1,
     });
-    expect(root.points).toEqual(undefined);
-    expect(root.children?.topLeft).toEqual({
+    if ("points" in root) {
+      fail("Two-level tree root should not be a leaf");
+    }
+    expect(root.children.topLeft).toEqual({
       box: {
         x: 0,
         y: 0,
@@ -42,7 +47,7 @@ describe("Quadtree", () => {
       },
       points: [points[0]],
     });
-    expect(root.children?.topRight).toEqual({
+    expect(root.children.topRight).toEqual({
       box: {
         x: 0.5,
         y: 0.0,
@@ -51,7 +56,7 @@ describe("Quadtree", () => {
       },
       points: [points[1]],
     });
-    expect(root.children?.bottomLeft).toEqual({
+    expect(root.children.bottomLeft).toEqual({
       box: {
         x: 0.0,
         y: 0.5,
@@ -60,7 +65,7 @@ describe("Quadtree", () => {
       },
       points: [points[2]],
     });
-    expect(root.children?.bottomRight).toEqual({
+    expect(root.children.bottomRight).toEqual({
       box: {
         x: 0.5,
         y: 0.5,

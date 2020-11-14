@@ -1,4 +1,4 @@
-import { Node, construct, nodes } from "./quadtree";
+import { construct, nodes } from "./quadtree";
 import { Vector } from "./vector";
 import { clearCanvas, initializeCanvas, drawNode, drawPoints } from "./canvas";
 

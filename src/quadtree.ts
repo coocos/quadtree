@@ -1,5 +1,7 @@
 import { Vector } from "./vector";
 
+const BUCKET_SIZE = 4;
+
 type BoundingBox = {
   x: number;
   y: number;
@@ -7,28 +9,64 @@ type BoundingBox = {
   height: number;
 };
 
-export type Node = {
-  children?: {
+type Leaf = {
+  box: BoundingBox;
+  points: Vector[];
+};
+
+type Inner = {
+  box: BoundingBox;
+  children: {
     topLeft: Node;
     topRight: Node;
     bottomLeft: Node;
     bottomRight: Node;
   };
-  box: BoundingBox;
-  points?: Vector[];
 };
 
+type Node = Leaf | Inner;
+
 export function construct(points: Vector[], box: BoundingBox): Node {
-  const root = {
+  let root: Node = {
     box,
     points: [],
   };
   for (let point of points) {
-    insert(root, point);
+    root = insert(root, point);
   }
   return root;
 }
-const BUCKET_SIZE = 4;
+
+function insert(node: Node, point: Vector): Node {
+  if (isLeaf(node)) {
+    if (node.points.length < BUCKET_SIZE) {
+      node.points.push(point);
+      return node;
+    }
+    const inner: Inner = {
+      box: node.box,
+      children: split(node),
+    };
+    for (let nodePoint of [...node.points, point]) {
+      for (let [name, child] of Object.entries(inner.children)) {
+        if (intersects(child, nodePoint)) {
+          inner.children[name as keyof Inner["children"]] = insert(
+            child,
+            nodePoint
+          );
+        }
+      }
+    }
+    return inner;
+  } else {
+    for (let [name, child] of Object.entries(node.children)) {
+      if (intersects(child, point)) {
+        node.children[name as keyof Inner["children"]] = insert(child, point);
+      }
+    }
+    return node;
+  }
+}
 
 function intersects(node: Node, point: Vector) {
   return (
@@ -39,7 +77,7 @@ function intersects(node: Node, point: Vector) {
   );
 }
 
-export function split(node: Node) {
+function split(node: Leaf) {
   const childWidth = node.box.width / 2;
   const childHeight = node.box.height / 2;
   const dimensions = {
@@ -82,14 +120,13 @@ export function split(node: Node) {
   };
 }
 
-// FIXME: You should really use *[Symbol.Iterator somehow]?
 export function nodes(node: Node) {
   const queue = [node];
   const nodes = [];
   while (queue.length > 0) {
     const node = queue.shift()!;
     nodes.push(node);
-    if (node.children) {
+    if (!isLeaf(node)) {
       for (let child of Object.values(node.children)) {
         queue.push(child);
       }
@@ -98,38 +135,6 @@ export function nodes(node: Node) {
   return nodes;
 }
 
-function isLeaf(node: Node) {
-  return node.children === undefined && node.points !== undefined;
-}
-
-export function insert(node: Node, point: Vector) {
-  if (isLeaf(node)) {
-    if (node.points !== undefined) {
-      if (node.points.length < BUCKET_SIZE) {
-        node.points.push(point);
-      } else {
-        node.children = split(node);
-        for (let nodePoint of [...node.points, point]) {
-          for (let child of Object.values(node.children)) {
-            if (intersects(child, nodePoint)) {
-              insert(child, nodePoint);
-            }
-          }
-        }
-        node.points = undefined;
-      }
-    } else {
-      console.error("Leaf should always have points");
-    }
-  } else {
-    if (node.children) {
-      for (let child of Object.values(node.children)) {
-        if (intersects(child, point)) {
-          insert(child, point);
-        }
-      }
-    } else {
-      console.error("Non-leaf should always have children");
-    }
-  }
+function isLeaf(node: Node): node is Leaf {
+  return "points" in node;
 }
