@@ -25,7 +25,7 @@ type Inner = {
   };
 };
 
-type Node = Leaf | Inner;
+export type Node = Leaf | Inner;
 
 export function construct(points: Point[], box: BoundingBox): Node {
   let root: Node = {
@@ -38,7 +38,7 @@ export function construct(points: Point[], box: BoundingBox): Node {
   return root;
 }
 
-function insert(node: Node, point: Point): Node {
+export function insert(node: Node, point: Point): Node {
   if (isLeaf(node)) {
     if (node.points.length < BUCKET_SIZE) {
       node.points.push(point);
@@ -136,6 +136,6 @@ export function nodes(node: Node) {
   return nodes;
 }
 
-function isLeaf(node: Node): node is Leaf {
+export function isLeaf(node: Node): node is Leaf {
   return "points" in node;
 }
