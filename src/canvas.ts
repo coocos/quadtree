@@ -3,19 +3,32 @@ import { nodes, isLeaf, Node } from "./quadtree";
 export function initializeCanvas() {
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
   const scale = window.devicePixelRatio;
-  canvas.width = window.innerWidth * scale;
-  canvas.height = window.innerHeight * scale;
+  canvas.width = Math.floor(window.innerWidth * scale);
+  canvas.height = Math.floor(window.innerHeight * scale);
   const context = canvas.getContext("2d") as CanvasRenderingContext2D;
   context.scale(scale, scale);
+
   return {
-    canvas,
-    context,
+    draw: (tree: Node) => {
+      clear(context, canvas.width, canvas.height);
+      for (let node of nodes(tree)) {
+        drawNode(context, node);
+        drawPoints(context, node);
+      }
+    },
+    width: canvas.width / scale,
+    height: canvas.height / scale,
+    element: canvas,
   };
 }
 
-export function clearCanvas(context: CanvasRenderingContext2D) {
+function clear(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number
+) {
   context.fillStyle = "#eee";
-  context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+  context.fillRect(0, 0, width, height);
 }
 
 function drawNode(context: CanvasRenderingContext2D, node: Node) {
@@ -33,13 +46,5 @@ function drawPoints(context: CanvasRenderingContext2D, node: Node) {
       context.arc(point.x, point.y, 3, 0, 2 * Math.PI);
       context.fill();
     }
-  }
-}
-
-export function draw(tree: Node, context: CanvasRenderingContext2D) {
-  clearCanvas(context);
-  for (let node of nodes(tree)) {
-    drawNode(context, node);
-    drawPoints(context, node);
   }
 }

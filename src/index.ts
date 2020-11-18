@@ -1,7 +1,7 @@
 import { insert, construct } from "./quadtree";
-import { draw, initializeCanvas } from "./canvas";
+import { initializeCanvas } from "./canvas";
 
-const { canvas, context } = initializeCanvas();
+const canvas = initializeCanvas();
 
 const points = Array.from({ length: 256 }, () => {
   return {
@@ -17,13 +17,12 @@ let tree = construct(points, {
   height: canvas.height,
 });
 
-draw(tree, context);
-canvas.addEventListener("click", (event) => {
-  const { left, top } = canvas.getBoundingClientRect();
+canvas.draw(tree);
+canvas.element.addEventListener("click", (event) => {
   const point = {
-    x: event.clientX - left,
-    y: event.clientY - top,
+    x: event.clientX,
+    y: event.clientY,
   };
   tree = insert(tree, point);
-  draw(tree, context);
+  canvas.draw(tree);
 });
