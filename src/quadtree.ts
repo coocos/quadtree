@@ -5,6 +5,10 @@ type Point = {
   y: number;
 };
 
+type Area = Point & {
+  radius: number;
+};
+
 type BoundingBox = Point & {
   width: number;
   height: number;
@@ -38,6 +42,19 @@ export function construct(points: Point[], box: BoundingBox): Node {
   return root;
 }
 
+export function pointsWithinArea(node: Node, area: Area) {
+  if (isLeaf(node)) {
+    return node.points.filter((point) => pointWithinArea(point, area));
+  }
+  let points: Point[] = [];
+  for (let child of Object.values(node.children)) {
+    if (boxWithinArea(child.box, area)) {
+      points = [...points, ...pointsWithinArea(child, area)];
+    }
+  }
+  return points;
+}
+
 export function insert(node: Node, point: Point): Node {
   if (isLeaf(node)) {
     if (node.points.length < BUCKET_SIZE) {
@@ -67,6 +84,25 @@ export function insert(node: Node, point: Point): Node {
     }
     return node;
   }
+}
+
+export function nodes(node: Node) {
+  const queue = [node];
+  const nodes = [];
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    nodes.push(node);
+    if (!isLeaf(node)) {
+      for (let child of Object.values(node.children)) {
+        queue.push(child);
+      }
+    }
+  }
+  return nodes;
+}
+
+export function isLeaf(node: Node): node is Leaf {
+  return "points" in node;
 }
 
 function intersects(node: Node, point: Point) {
@@ -121,21 +157,14 @@ function split(node: Leaf) {
   };
 }
 
-export function nodes(node: Node) {
-  const queue = [node];
-  const nodes = [];
-  while (queue.length > 0) {
-    const node = queue.shift()!;
-    nodes.push(node);
-    if (!isLeaf(node)) {
-      for (let child of Object.values(node.children)) {
-        queue.push(child);
-      }
-    }
-  }
-  return nodes;
+function boxWithinArea(box: BoundingBox, area: Area) {
+  const closestX = Math.max(box.x, Math.min(area.x, box.x + box.width));
+  const closestY = Math.max(box.y, Math.min(area.y, box.y + box.height));
+  const distanceSquared = (area.x - closestX) ** 2 + (area.y - closestY) ** 2;
+  return distanceSquared < area.radius ** 2;
 }
 
-export function isLeaf(node: Node): node is Leaf {
-  return "points" in node;
+function pointWithinArea(point: Point, area: Area) {
+  const distanceSquared = (point.x - area.x) ** 2 + (point.y - area.y) ** 2;
+  return distanceSquared < area.radius ** 2;
 }

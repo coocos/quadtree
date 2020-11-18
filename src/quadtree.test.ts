@@ -1,4 +1,4 @@
-import { construct } from "./quadtree";
+import { construct, pointsWithinArea } from "./quadtree";
 
 describe("Quadtree", () => {
   test("constructing a flat tree", () => {
@@ -100,5 +100,42 @@ describe("Quadtree", () => {
       },
       points: [points[3], points[4]],
     });
+  });
+  test("finding points within an area", () => {
+    const points = [
+      {
+        x: 0,
+        y: 0,
+      },
+      {
+        x: 1,
+        y: 0,
+      },
+      {
+        x: 0,
+        y: 1,
+      },
+      {
+        x: 1,
+        y: 1,
+      },
+      {
+        x: 9,
+        y: 9,
+      },
+      {
+        x: 8,
+        y: 8,
+      },
+    ];
+    const root = construct(points, {
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+    });
+    expect(pointsWithinArea(root, { x: 1, y: 1, radius: 2 })).toEqual(
+      points.slice(0, 4)
+    );
   });
 });

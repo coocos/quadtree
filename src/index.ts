@@ -1,4 +1,4 @@
-import { insert, construct } from "./quadtree";
+import { insert, construct, pointsWithinArea } from "./quadtree";
 import { initializeCanvas } from "./canvas";
 
 const canvas = initializeCanvas();
