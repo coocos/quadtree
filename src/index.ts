@@ -3,7 +3,7 @@ import { initializeCanvas } from "./canvas";
 
 const canvas = initializeCanvas();
 
-const points = Array.from({ length: 256 }, () => {
+const points = Array.from({ length: 384 }, () => {
   return {
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,

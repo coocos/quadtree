@@ -27,13 +27,15 @@ function clear(
   width: number,
   height: number
 ) {
-  context.fillStyle = "#eee";
+  context.fillStyle = "#fff";
   context.fillRect(0, 0, width, height);
 }
 
 function drawNode(context: CanvasRenderingContext2D, node: Node) {
-  context.strokeStyle = "#aaa";
+  context.fillStyle = "#7772";
+  context.fillRect(node.box.x, node.box.y, node.box.width, node.box.height);
   context.beginPath();
+  context.strokeStyle = "#777";
   context.rect(node.box.x, node.box.y, node.box.width, node.box.height);
   context.stroke();
 }
@@ -41,7 +43,7 @@ function drawNode(context: CanvasRenderingContext2D, node: Node) {
 function drawPoints(context: CanvasRenderingContext2D, node: Node) {
   if (isLeaf(node)) {
     for (let point of node.points) {
-      context.fillStyle = "#bbb";
+      context.fillStyle = "#777";
       context.beginPath();
       context.arc(point.x, point.y, 3, 0, 2 * Math.PI);
       context.fill();
