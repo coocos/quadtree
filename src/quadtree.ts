@@ -1,6 +1,6 @@
 const BUCKET_SIZE = 4;
 
-type Point = {
+export type Point = {
   x: number;
   y: number;
 };
@@ -157,14 +157,14 @@ function split(node: Leaf) {
   };
 }
 
-function boxWithinArea(box: BoundingBox, area: Area) {
+export function boxWithinArea(box: BoundingBox, area: Area) {
   const closestX = Math.max(box.x, Math.min(area.x, box.x + box.width));
   const closestY = Math.max(box.y, Math.min(area.y, box.y + box.height));
   const distanceSquared = (area.x - closestX) ** 2 + (area.y - closestY) ** 2;
   return distanceSquared < area.radius ** 2;
 }
 
-function pointWithinArea(point: Point, area: Area) {
+export function pointWithinArea(point: Point, area: Area) {
   const distanceSquared = (point.x - area.x) ** 2 + (point.y - area.y) ** 2;
   return distanceSquared < area.radius ** 2;
 }

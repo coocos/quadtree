@@ -1,7 +1,13 @@
-import { construct, pointsWithinArea } from "./quadtree";
+import {
+  construct,
+  boxWithinArea,
+  pointWithinArea,
+  pointsWithinArea,
+  Point,
+} from "./quadtree";
 
 describe("Quadtree", () => {
-  test("constructing a flat tree", () => {
+  test("construct a flat tree", () => {
     const points = [
       {
         x: 0,
@@ -32,7 +38,7 @@ describe("Quadtree", () => {
     expect(root.points).not.toEqual(undefined);
     expect(root.points).toEqual(points);
   });
-  test("constructing a two level deep tree", () => {
+  test("construct a two level deep tree", () => {
     const points = [
       {
         x: 0,
@@ -101,41 +107,90 @@ describe("Quadtree", () => {
       points: [points[3], points[4]],
     });
   });
-  test("finding points within an area", () => {
-    const points = [
-      {
-        x: 0,
-        y: 0,
-      },
-      {
-        x: 1,
-        y: 0,
-      },
-      {
-        x: 0,
-        y: 1,
-      },
-      {
-        x: 1,
-        y: 1,
-      },
-      {
-        x: 9,
-        y: 9,
-      },
-      {
-        x: 8,
-        y: 8,
-      },
-    ];
+  test("find points within an area using the tree", () => {
+    const width = 10;
+    const height = 10;
+    const points = Array.from({ length: 128 }, () => {
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+      };
+    });
     const root = construct(points, {
       x: 0,
       y: 0,
-      width: 10,
-      height: 10,
+      width,
+      height,
     });
-    expect(pointsWithinArea(root, { x: 1, y: 1, radius: 2 })).toEqual(
-      points.slice(0, 4)
-    );
+    const area = {
+      x: 5,
+      y: 5,
+      radius: 3,
+    };
+    const orderByX = (first: Point, second: Point) => first.x - second.x;
+    const expected = points
+      .filter((point) => pointWithinArea(point, area))
+      .sort(orderByX);
+    const actual = pointsWithinArea(root, area).sort(orderByX);
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe("Intersection helpers", () => {
+  test("point is within area", () => {
+    expect(
+      pointWithinArea(
+        {
+          x: 0.5,
+          y: 0.5,
+        },
+        { x: 0.75, y: 0.75, radius: 0.5 }
+      )
+    ).toBe(true);
+  });
+  test("point is not within area", () => {
+    expect(
+      pointWithinArea(
+        {
+          x: 0.5,
+          y: 0.5,
+        },
+        { x: 0.75, y: 0.75, radius: 0.125 }
+      )
+    ).toBe(false);
+  });
+  test("box is within area", () => {
+    expect(
+      boxWithinArea(
+        {
+          x: 0,
+          y: 0,
+          width: 5,
+          height: 5,
+        },
+        {
+          x: 10,
+          y: 10,
+          radius: 7.5,
+        }
+      )
+    ).toBe(true);
+  });
+  test("box is not within area", () => {
+    expect(
+      boxWithinArea(
+        {
+          x: 0,
+          y: 0,
+          width: 5,
+          height: 5,
+        },
+        {
+          x: 10,
+          y: 10,
+          radius: 2.5,
+        }
+      )
+    ).toBe(false);
   });
 });
