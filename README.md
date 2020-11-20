@@ -33,4 +33,4 @@ const points = pointsWithinArea(tree, {
 
 ## Demo
 
-[This demo](https://lamsa.dev/quadtree/) draws the quadtree using canvas and allows you to add new points to the tree by clicking on the canvas.
+[This demo](https://lamsa.dev/quadtree/) visualizes the quadtree using canvas and keeps adding new random points to tree, thus branching the tree deeper and deeper.

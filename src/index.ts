@@ -1,15 +1,16 @@
-import { insert, construct, pointsWithinArea } from "./quadtree";
+import { insert, construct } from "./quadtree";
 import { initializeCanvas } from "./canvas";
 
 const canvas = initializeCanvas();
 
-const points = Array.from({ length: 384 }, () => {
+const randomPoint = () => {
   return {
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
   };
-});
+};
 
+const points = Array.from({ length: 256 }, randomPoint);
 let tree = construct(points, {
   x: 0,
   y: 0,
@@ -18,11 +19,7 @@ let tree = construct(points, {
 });
 
 canvas.draw(tree);
-canvas.element.addEventListener("click", (event) => {
-  const point = {
-    x: event.clientX,
-    y: event.clientY,
-  };
-  tree = insert(tree, point);
+setInterval(() => {
+  tree = insert(tree, randomPoint());
   canvas.draw(tree);
-});
+}, 250);
