@@ -12,19 +12,19 @@ import { construct, pointsWithinArea } from "./quadtree";
 const width = 512;
 const height = 512;
 
-const points = Array.from({ length: 256 }, () => {
+const randomPoints = Array.from({ length: 256 }, () => {
   return {
     x: Math.random() * width,
     y: Math.random() * height,
   };
 });
-const tree = construct(points, {
+const tree = construct(randomPoints, {
   x: 0,
   y: 0,
   width: width,
   height: height,
 });
-const points = pointsWithinArea(tree, {
+const nearbyPoints = pointsWithinArea(tree, {
   x: 256,
   y: 256,
   radius: 64,
