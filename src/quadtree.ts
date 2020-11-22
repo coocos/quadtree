@@ -1,5 +1,3 @@
-const BUCKET_SIZE = 4;
-
 export type Point = {
   x: number;
   y: number;
@@ -31,33 +29,23 @@ type Inner = {
 
 export type Node = Leaf | Inner;
 
-export function construct(points: Point[], box: BoundingBox): Node {
+export function construct(
+  points: Point[],
+  box: BoundingBox,
+  bucketSize: number = 4
+): Node {
   let root: Node = {
     box,
     points: [],
   };
   for (let point of points) {
-    root = insert(root, point);
+    root = insert(root, point, bucketSize);
   }
   return root;
 }
-
-export function pointsWithinArea(node: Node, area: Area) {
+export function insert(node: Node, point: Point, bucketSize: number = 4): Node {
   if (isLeaf(node)) {
-    return node.points.filter((point) => pointWithinArea(point, area));
-  }
-  let points: Point[] = [];
-  for (let child of Object.values(node.children)) {
-    if (boxWithinArea(child.box, area)) {
-      points = [...points, ...pointsWithinArea(child, area)];
-    }
-  }
-  return points;
-}
-
-export function insert(node: Node, point: Point): Node {
-  if (isLeaf(node)) {
-    if (node.points.length < BUCKET_SIZE) {
+    if (node.points.length < bucketSize) {
       node.points.push(point);
       return node;
     }
@@ -84,6 +72,19 @@ export function insert(node: Node, point: Point): Node {
     }
     return node;
   }
+}
+
+export function pointsWithinArea(node: Node, area: Area) {
+  if (isLeaf(node)) {
+    return node.points.filter((point) => pointWithinArea(point, area));
+  }
+  let points: Point[] = [];
+  for (let child of Object.values(node.children)) {
+    if (boxWithinArea(child.box, area)) {
+      points = [...points, ...pointsWithinArea(child, area)];
+    }
+  }
+  return points;
 }
 
 export function nodes(node: Node) {
