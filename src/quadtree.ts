@@ -12,12 +12,12 @@ type BoundingBox = Point & {
   height: number;
 };
 
-type Leaf = {
+type LeafNode = {
   box: BoundingBox;
   points: Point[];
 };
 
-type Inner = {
+type InnerNode = {
   box: BoundingBox;
   children: {
     topLeft: Node;
@@ -27,7 +27,7 @@ type Inner = {
   };
 };
 
-export type Node = Leaf | Inner;
+export type Node = LeafNode | InnerNode;
 
 export function construct(
   points: Point[],
@@ -49,14 +49,14 @@ export function insert(node: Node, point: Point, bucketSize: number = 4): Node {
       node.points.push(point);
       return node;
     }
-    const inner: Inner = {
+    const inner: InnerNode = {
       box: node.box,
       children: split(node),
     };
     for (let nodePoint of [...node.points, point]) {
       for (let [name, child] of Object.entries(inner.children)) {
         if (intersects(child, nodePoint)) {
-          inner.children[name as keyof Inner["children"]] = insert(
+          inner.children[name as keyof InnerNode["children"]] = insert(
             child,
             nodePoint
           );
@@ -67,7 +67,10 @@ export function insert(node: Node, point: Point, bucketSize: number = 4): Node {
   } else {
     for (let [name, child] of Object.entries(node.children)) {
       if (intersects(child, point)) {
-        node.children[name as keyof Inner["children"]] = insert(child, point);
+        node.children[name as keyof InnerNode["children"]] = insert(
+          child,
+          point
+        );
       }
     }
     return node;
@@ -102,7 +105,7 @@ export function nodes(node: Node) {
   return nodes;
 }
 
-export function isLeaf(node: Node): node is Leaf {
+export function isLeaf(node: Node): node is LeafNode {
   return "points" in node;
 }
 
@@ -115,7 +118,7 @@ function intersects(node: Node, point: Point) {
   );
 }
 
-function split(node: Leaf) {
+function split(node: LeafNode) {
   const childWidth = node.box.width / 2;
   const childHeight = node.box.height / 2;
   const dimensions = {
