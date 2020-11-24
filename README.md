@@ -33,4 +33,4 @@ const nearbyPoints = pointsWithinArea(tree, {
 
 ## Demo
 
-[This demo](https://lamsa.dev/quadtree/) visualizes the quadtree using canvas and keeps adding new random points to tree, thus branching the tree deeper and deeper.
+[This demo](https://lamsa.dev/quadtree/) visualizes the quadtree using canvas and keeps adding new random points to the tree, thus branching the tree deeper and deeper.
