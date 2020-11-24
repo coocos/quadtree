@@ -11,7 +11,7 @@ export function initializeCanvas() {
   return {
     draw: (tree: Node) => {
       clear(context, canvas.width, canvas.height);
-      for (let node of nodes(tree)) {
+      for (const node of nodes(tree)) {
         drawNode(context, node);
         drawPoints(context, node);
       }
@@ -42,7 +42,7 @@ function drawNode(context: CanvasRenderingContext2D, node: Node) {
 
 function drawPoints(context: CanvasRenderingContext2D, node: Node) {
   if (isLeaf(node)) {
-    for (let point of node.points) {
+    for (const point of node.points) {
       context.fillStyle = "#777";
       context.beginPath();
       context.arc(point.x, point.y, 3, 0, 2 * Math.PI);
